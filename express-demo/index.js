@@ -16,12 +16,10 @@ app.get('/api/appeals', (req, res) => {
     res.send(appeals)
 })
 
-app.post('/api/appeals/:id', (req, res) => {
-    const appeal = {
-        id: req.params.id
-    }
-})
 
+app.get('/api', (req, res) => {
+    res.status(200).send("Service is active")
+})
 app.get('/api/appeals/:id', (req, res) => {
     const appeal = appeals.find(c => c.id === parseInt(req.params.id))
     if (!appeal) res.status(404).send("Appeal not found")
