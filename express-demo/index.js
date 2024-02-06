@@ -22,7 +22,7 @@ const endpoints = [
 ]
 
 app.get('/api', (req, res) => {
-    res.status(200).send("Service is active \n ENDPOINTS: \n"+JSON.stringify(endpoints))
+    res.status(200).send("ENDPOINTS: \n"+endpoints)
 })
 app.get('/api/appeals/:id', (req, res) => {
     const appeal = appeals.find(c => c.id === parseInt(req.params.id))
