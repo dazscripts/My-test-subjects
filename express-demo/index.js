@@ -15,14 +15,15 @@ app.get('/', (req, res) => {
 app.get('/api/appeals', (req, res) => {
     res.send(appeals)
 })
-const endpoints = [
-    "/api",
-    "/api/appeals",
-    "/api/appeals/{id}",
-]
+const endpoints = {
+    "endpoints":"/api",
+    "appeals list": "/api/appeals",
+    "search for an appeal": "/api/appeals/{id}",
+}
 
 app.get('/api', (req, res) => {
-    res.status(200).send("ENDPOINTS: \n"+endpoints)
+    res.status(200)
+    res.send(endpoints)
 })
 app.get('/api/appeals/:id', (req, res) => {
     const appeal = appeals.find(c => c.id === parseInt(req.params.id))
