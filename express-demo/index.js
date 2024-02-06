@@ -27,9 +27,10 @@ app.get('/api/appeals/:id', (req, res) => {
     if (!appeal) res.status(404).send("Appeal not found")
     else res.status(200).send(appeal)
 })
-console.log(process.env)
+
 const port = process.env.PORT || 3000
-app.listen(port, () => console.log(`${port}`))
+app.listen(port, () => console.log(`Listening on PORT: ${port}`))
+
  
 
 
