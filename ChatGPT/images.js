@@ -42,6 +42,14 @@ function handleResponse(response, callback) {
     });
 }
 
+function ensureDirectoryExistence(filePath) {
+    const dirname = path.dirname(filePath);
+    if (fs.existsSync(dirname)) {
+        return true;
+    }
+    fs.mkdirSync(dirname, { recursive: true });
+}
+
 function main(assetId, callback) {
     const options = getOptions(assetId);
 
@@ -64,17 +72,20 @@ function main(assetId, callback) {
                         }
                         
                         const filename = `${assetId}.png`; // or any desired filename
-                        //const filePath = path.join(__dirname, 'storage', filename);
+                        const filePath = path.join(__dirname, 'storage', filename);
+
+                        // Ensure the storage directory exists
+                        ensureDirectoryExistence(filePath);
 
                         // Write image data to file
-                        fs.writeFile(`./storage/${filename}`, imageData, (writeErr) => {
+                        fs.writeFile(filePath, imageData, (writeErr) => {
                             if (writeErr) {
                                 console.error('Error writing image to file:', writeErr.message);
                                 return callback(writeErr);
                             }
                             
-                            //console.log(`Image saved to ${filePath}`);
-                            callback(null, `./storage/${filename}`); // Return the file path
+                            console.log(`Image saved to ${filePath}`);
+                            callback(null, filePath); // Return the file path
                         });
                     });
                 }).on('error', (err) => {
