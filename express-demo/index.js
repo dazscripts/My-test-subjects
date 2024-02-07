@@ -53,11 +53,11 @@ app.get('/api/bytecode/:id', (req, res) => {
 
 })
 
-app.use('/api/storage', express.static(path.join(__dirname,'ChatGPT', 'storage')));
-
+app.use('/api/storage', express.static(path.join('../','ChatGPT', 'storage')));
+console.log(__dirname)
 app.get('/api/storage/:imageName', (req, res) => {
     const imageName = req.params.imageName;
-    const imagePath = path.join(__dirname, 'ChatGPT', 'storage', imageName);
+    const imagePath = path.join('../', 'ChatGPT', 'storage', imageName);
 
     res.sendFile(imagePath, err => {
         if (err) {
