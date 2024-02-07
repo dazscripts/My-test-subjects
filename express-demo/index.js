@@ -1,6 +1,6 @@
 const express = require('express')
 const app = express()
-const { get_binary } = require('./ChatGPT/images.js');
+const { get_binary } = require('/ChatGPT/images.js');
 
 app.use(express.json())
 
