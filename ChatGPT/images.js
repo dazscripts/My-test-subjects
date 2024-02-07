@@ -67,13 +67,13 @@ function main(assetId, callback) {
                         //const filePath = path.join(__dirname, 'storage', filename);
 
                         // Write image data to file
-                        fs.writeFile('./storage'+filename, imageData, (writeErr) => {
+                        fs.writeFile(`./storage${filename}`, imageData, (writeErr) => {
                             if (writeErr) {
                                 console.error('Error writing image to file:', writeErr.message);
                                 return callback(writeErr);
                             }
                             
-                            console.log(`Image saved to ${filePath}`);
+                            //console.log(`Image saved to ${filePath}`);
                             callback(null, filePath); // Return the file path
                         });
                     });
