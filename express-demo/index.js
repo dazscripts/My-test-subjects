@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const fs = require('fs');
 const path = require('path');
-const { get_image } = require('../ChatGPT/images.js');
+const { get_image } = require('../ChatGPT/images.js'); // Adjust the path as necessary
 
 app.use(express.json());
 
@@ -30,41 +30,32 @@ app.get('/api', (req, res) => {
 });
 
 app.get('/api/bytecode/:id', (req, res) => {
-    get_image(parseInt(req.params.id), (err, imageStream) => {
+    get_image(parseInt(req.params.id), (err, imageData) => {
         if (err) {
             console.error('An error occurred while fetching the image:', err);
             return res.status(500).json({ error: 'Internal server error' });
         }
 
-        res.setHeader('Content-Type', 'image/png'); // Adjust the content type as needed
-
-        // Pipe the image stream directly to the response
-        imageStream.pipe(res);
-
-        // Handle errors during stream processing
-        imageStream.on('error', (err) => {
-            console.error('Error processing image stream:', err);
-            res.status(500).json({ error: 'Internal server error' });
-        });
+        // Check if imageData is indeed a Buffer; adjust the content type if necessary
+        res.setHeader('Content-Type', 'image/png');
+        res.send(imageData);
     });
 });
 
+// Serving static files from a directory; adjust as necessary
 app.use('/api/storage', express.static(path.join(__dirname, '../ChatGPT/storage')));
 
 app.get('/api/storage/:imageName', (req, res) => {
     const imageName = req.params.imageName;
-    // Specifying the root option to res.sendFile
-    const imagePath = `${imageName}.png`;
-    const rootPath = path.join(__dirname, '../ChatGPT/storage');
+    const imagePath = path.resolve(__dirname, '../ChatGPT/storage', `${imageName}.png`);
 
-    res.sendFile(imagePath, { root: rootPath }, err => {
+    res.sendFile(imagePath, err => {
         if (err) {
             console.error(err);
             return res.status(404).send('Image not found');
         }
     });
 });
-
 
 app.get('/api/appeals/:id', (req, res) => {
     const appeal = appeals.find(c => c.id === parseInt(req.params.id));

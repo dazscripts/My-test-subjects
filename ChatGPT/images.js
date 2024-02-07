@@ -4,6 +4,13 @@ const fs = require('fs');
 const path = require('path');
 const { Readable } = require('stream');
 
+function bufferToStream(buffer) {
+    const stream = new Readable();
+    stream.push(buffer);
+    stream.push(null); // Indicates the end of the stream
+    return stream;
+}
+
 function getOptions(assetId) {
     return {
         hostname: 'assetdelivery.roblox.com',
