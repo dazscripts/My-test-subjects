@@ -30,29 +30,23 @@ function httpsGet(url, callback) {
   });
 }
 
-// Function to download image
-// Function to download image
-// Function to download image
-function downloadImage(imageUrl, filename, callback) {
-  const req = https.get(imageUrl, (res) => {
+// Function to download content
+function downloadContent(contentUrl, filename, callback) {
+  https.get(contentUrl, (res) => {
     const filePath = path.join(__dirname, filename);
-    const fileStream = fs.createWriteStream(filePath, { encoding: 'binary' });
+    const fileStream = fs.createWriteStream(filePath);
 
     res.pipe(fileStream);
 
     fileStream.on('finish', () => {
       fileStream.close();
-      console.log('Downloaded image:', filename);
+      console.log('Downloaded content:', filename);
       callback(null);
     });
   }).on('error', (err) => {
     callback(err);
   });
-
-  req.end();
 }
-
-
 
 // Start the first request
 httpsGet(options, (err, result) => {
@@ -65,13 +59,13 @@ httpsGet(options, (err, result) => {
 
     // Use the 'locations' array from the parsedData
     parsedData.locations.forEach((locationObject) => {
-      const imageUrl = locationObject.location;
-      const filename = imageUrl.split('/').pop(); // Extract the file name from URL
+      const contentUrl = locationObject.location;
+      const filename = 'downloaded_content.png'; // You can choose a suitable filename or derive from contentUrl
 
-      // Download the image
-      downloadImage(imageUrl, filename, (downloadErr) => {
+      // Download the content
+      downloadContent(contentUrl, filename, (downloadErr) => {
         if (downloadErr) {
-          console.error('Error downloading image:', downloadErr.message);
+          console.error('Error downloading content:', downloadErr.message);
         }
       });
     });
