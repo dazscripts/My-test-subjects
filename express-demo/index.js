@@ -37,7 +37,7 @@ get_binary(parseInt(req.params.id), (err, imageData) => {
         // Here imageData is a Buffer containing the binary data of the image
         // You can now work with this Buffer, save it to a file, send it over HTTP, etc.
         console.log('Binary data of image received:', imageData);
-        res.status(200).send(Buffer.toString(imageData))
+        res.status(200).send(Buffer.copyBytesFrom(imageData))
     }
 });
 

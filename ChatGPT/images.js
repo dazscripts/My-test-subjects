@@ -1,5 +1,6 @@
 const https = require('https');
 const zlib = require('zlib');
+const { Readable } = require('stream');
 
 function getOptions(assetId) {
     return {
@@ -16,7 +17,6 @@ function getOptions(assetId) {
 
 function handleResponse(response, callback) {
     const encoding = response.headers['content-encoding'];
-    let data = [];
     let dataStream = response;
 
     if (encoding === 'gzip') {
@@ -25,12 +25,13 @@ function handleResponse(response, callback) {
         dataStream = gzip;
     }
 
+    const chunks = [];
     dataStream.on('data', (chunk) => {
-        data.push(chunk);
+        chunks.push(chunk);
     });
 
     dataStream.on('end', () => {
-        const combinedData = Buffer.concat(data);
+        const combinedData = Buffer.concat(chunks);
         callback(null, combinedData);
     });
 
@@ -59,7 +60,13 @@ function main(assetId, callback) {
                             console.error('Error downloading image:', downloadErr.message);
                             return callback(downloadErr);
                         }
-                        callback(null, imageData);
+                        
+                        // Create a readable stream from the image data
+                        const imageStream = new Readable();
+                        imageStream.push(imageData);
+                        imageStream.push(null);
+
+                        callback(null, imageStream);
                     });
                 }).on('error', (err) => {
                     console.error('Error making HTTPS request:', err.message);
@@ -77,4 +84,4 @@ function main(assetId, callback) {
     });
 }
 
-module.exports.get_binary = main;
+module.exports.get_image = main;
