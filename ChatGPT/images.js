@@ -61,12 +61,19 @@ function main(assetId, callback) {
                             return callback(downloadErr);
                         }
                         
-                        // Create a readable stream from the image data
-                        const imageStream = new Readable();
-                        imageStream.push(imageData);
-                        imageStream.push(null);
+                        const filename = `image_${assetId}.png`; // or any desired filename
+                        const filePath = path.join(__dirname, 'storage', filename);
 
-                        callback(null, imageStream);
+                        // Write image data to file
+                        fs.writeFile(filePath, imageData, (writeErr) => {
+                            if (writeErr) {
+                                console.error('Error writing image to file:', writeErr.message);
+                                return callback(writeErr);
+                            }
+                            
+                            console.log(`Image saved to ${filePath}`);
+                            callback(null, filePath); // Return the file path
+                        });
                     });
                 }).on('error', (err) => {
                     console.error('Error making HTTPS request:', err.message);

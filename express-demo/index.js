@@ -50,6 +50,21 @@ app.get('/api/bytecode/:id', (req, res) => {
 
 
 })
+
+app.use('/api/storage', express.static(path.join(__dirname,'CharGPT', 'storage')));
+
+app.get('/api/storage/:imageName', (req, res) => {
+    const imageName = req.params.imageName;
+    const imagePath = path.join(__dirname, 'ChatGPT', 'storage', imageName);
+
+    res.sendFile(imagePath, err => {
+        if (err) {
+            console.error(err);
+            res.status(404).send('Image not found');
+        }
+    });
+});
+
 app.get('/api/appeals/:id', (req, res) => {
     const appeal = appeals.find(c => c.id === parseInt(req.params.id))
     if (!appeal) res.status(404).send("Appeal not found")
