@@ -1,5 +1,7 @@
 const express = require('express')
 const app = express()
+const fs = require('fs');
+const path = require('path');
 const { get_image } = require('../ChatGPT/images.js');
 
 app.use(express.json())
