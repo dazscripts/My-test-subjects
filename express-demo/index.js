@@ -33,15 +33,10 @@ app.get('/api/bytecode/:id', (req, res) => {
             return;
         }
     
-        let imageData = '';
-        imageStream.on('data', (chunk) => {
-            imageData += chunk.toString('base64');
-        });
+        res.setHeader('Content-Type', 'image/png'); // Adjust the content type as needed
 
-        imageStream.on('end', () => {
-            // Send the Base64-encoded image data in the response
-            res.json({ image: imageData });
-        });
+        // Pipe the image stream directly to the response
+        imageStream.pipe(res);
 
         // Handle errors during stream processing
         imageStream.on('error', (err) => {
