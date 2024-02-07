@@ -32,12 +32,13 @@ app.get('/api/bytecode/:id', (req, res) => {
 get_binary(parseInt(req.params.id), (err, imageData) => {
     if (err) {
         console.error('An error occurred:', err.message);
-        res.status(404).send("Failed")
+        res.status(404)
+        res.send("Failed")
     } else {
         // Here imageData is a Buffer containing the binary data of the image
         // You can now work with this Buffer, save it to a file, send it over HTTP, etc.
         console.log('Binary data of image received:', imageData);
-        res.status(200).send(Buffer.copyBytesFrom(imageData))
+        res.status(200).send(imageData)
     }
 });
 
