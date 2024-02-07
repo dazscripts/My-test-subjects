@@ -29,7 +29,7 @@ app.get('/api', (req, res) => {
 app.get('/api/bytecode/:id', (req, res) => {
 
 
-get_binary(req.params.id, (err, imageData) => {
+get_binary(parseInt(req.params.id), (err, imageData) => {
     if (err) {
         console.error('An error occurred:', err.message);
     } else {
