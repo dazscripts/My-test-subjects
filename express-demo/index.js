@@ -53,15 +53,18 @@ app.use('/api/storage', express.static(path.join(__dirname, '../ChatGPT/storage'
 
 app.get('/api/storage/:imageName', (req, res) => {
     const imageName = req.params.imageName;
-    const imagePath = path.resolve(__dirname, '../ChatGPT/storage', `${imageName}.png`);
+    // Specifying the root option to res.sendFile
+    const imagePath = `${imageName}.png`;
+    const rootPath = path.join(__dirname, '../ChatGPT/storage');
 
-    res.sendFile(imagePath, err => {
+    res.sendFile(imagePath, { root: rootPath }, err => {
         if (err) {
             console.error(err);
             return res.status(404).send('Image not found');
         }
     });
 });
+
 
 app.get('/api/appeals/:id', (req, res) => {
     const appeal = appeals.find(c => c.id === parseInt(req.params.id));
