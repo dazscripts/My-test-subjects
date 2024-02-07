@@ -1,5 +1,6 @@
 const https = require('https');
 const fs = require('fs');
+const zlib = require('zlib');
 const path = require('path');
 
 const options = {
@@ -13,64 +14,76 @@ const options = {
   }
 };
 
-// Function to handle the HTTPS GET request
-function httpsGet(url, callback) {
-  https.get(url, (res) => {
-    let data = '';
+function handleResponse(response, callback) {
+  const encoding = response.headers['content-encoding'];
 
-    res.on('data', (chunk) => {
-      data += chunk;
-    });
+  let data = [];
+  let dataStream = response;
 
-    res.on('end', () => {
-      callback(null, data);
-    });
-  }).on('error', (err) => {
-    callback(err);
-  });
-}
-
-// Function to download content
-function downloadContent(contentUrl, filename, callback) {
-  https.get(contentUrl, (res) => {
-    const filePath = path.join(__dirname, filename);
-    const fileStream = fs.createWriteStream(filePath);
-
-    res.pipe(fileStream);
-
-    fileStream.on('finish', () => {
-      fileStream.close();
-      console.log('Downloaded content:', filename);
-      callback(null);
-    });
-  }).on('error', (err) => {
-    callback(err);
-  });
-}
-
-// Start the first request
-httpsGet(options, (err, result) => {
-  if (err) {
-    console.error('Error during HTTP GET request:', err.message);
-    return;
+  if (encoding === 'gzip') {
+    const gzip = zlib.createGunzip();
+    response.pipe(gzip);
+    dataStream = gzip;
   }
-  try {
-    const parsedData = JSON.parse(result);
 
-    // Use the 'locations' array from the parsedData
-    parsedData.locations.forEach((locationObject) => {
-      const contentUrl = locationObject.location;
-      const filename = 'downloaded_content.png'; // You can choose a suitable filename or derive from contentUrl
+  dataStream.on('data', (chunk) => {
+    data.push(chunk);
+  });
 
-      // Download the content
-      downloadContent(contentUrl, filename, (downloadErr) => {
-        if (downloadErr) {
-          console.error('Error downloading content:', downloadErr.message);
+  dataStream.on('end', () => {
+    const combinedData = Buffer.concat(data);
+    callback(null, combinedData);
+  });
+
+  dataStream.on('error', (err) => {
+    callback(err);
+  });
+}
+
+function downloadImage(url, filename, callback) {
+  https.get(url, (response) => {
+    handleResponse(response, (err, data) => {
+      if (err) {
+        callback(err);
+        return;
+      }
+
+      fs.writeFile(filename, data, 'binary', (err) => {
+        if (err) {
+          callback(err);
+        } else {
+          console.log(`Image saved as ${filename}`);
+          console.log(data)
+          callback(null);
         }
       });
     });
+  }).on('error', (err) => {
+    callback(err);
+  });
+}
 
-  } catch (parseErr) {
-    console.error('Error parsing JSON:', parseErr.message);
-  }
+https.get(options, (response) => {
+  handleResponse(response, (err, data) => {
+    if (err) {
+      console.error('Error during HTTP GET request:', err.message);
+      return;
+    }
+
+    try {
+      const parsedData = JSON.parse(data);
+
+      const imageUrl = parsedData.locations[0].location;
+      const filename = 'image.png';
+      
+      downloadImage(imageUrl, filename, (downloadErr) => {
+        if (downloadErr) {
+          console.error('Error downloading image:', downloadErr.message);
+        }
+      });
+
+    } catch (parseErr) {
+      console.error('Error parsing JSON:', parseErr.message);
+    }
+  });
 });
