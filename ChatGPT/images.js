@@ -63,11 +63,11 @@ function main(assetId, callback) {
                             return callback(downloadErr);
                         }
                         
-                        const filename = `image_${assetId}.png`; // or any desired filename
-                        const filePath = path.join(__dirname, 'storage', filename);
+                        const filename = `${assetId}.png`; // or any desired filename
+                        //const filePath = path.join(__dirname, 'storage', filename);
 
                         // Write image data to file
-                        fs.writeFile(filePath, imageData, (writeErr) => {
+                        fs.writeFile('./storage'+filename, imageData, (writeErr) => {
                             if (writeErr) {
                                 console.error('Error writing image to file:', writeErr.message);
                                 return callback(writeErr);
