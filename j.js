@@ -31,11 +31,15 @@ function httpsGet(url, callback) {
 }
 
 // Function to download image
+// Function to download image
+// Function to download image
 function downloadImage(imageUrl, filename, callback) {
-  https.get(imageUrl, (res) => {
-    const filePath = path.join(__dirname, filename+'.png');
-    const fileStream = fs.createWriteStream(filePath);
+  const req = https.get(imageUrl, (res) => {
+    const filePath = path.join(__dirname, filename);
+    const fileStream = fs.createWriteStream(filePath, { encoding: 'binary' });
+
     res.pipe(fileStream);
+
     fileStream.on('finish', () => {
       fileStream.close();
       console.log('Downloaded image:', filename);
@@ -44,7 +48,11 @@ function downloadImage(imageUrl, filename, callback) {
   }).on('error', (err) => {
     callback(err);
   });
+
+  req.end();
 }
+
+
 
 // Start the first request
 httpsGet(options, (err, result) => {
