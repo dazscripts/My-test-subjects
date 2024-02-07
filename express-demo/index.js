@@ -27,20 +27,32 @@ app.get('/api', (req, res) => {
     res.send(endpoints)
 })
 app.get('/api/bytecode/:id', (req, res) => {
+    get_image(parseInt(req.params.id), (err, imageStream) => {
+        if (err) {
+            console.error('An error occurred while fetching the image:', err);
+            return;
+        }
+    
+        let imageData = '';
+        imageStream.on('data', (chunk) => {
+            imageData += chunk.toString('base64');
+        });
+
+        imageStream.on('end', () => {
+            // Send the Base64-encoded image data in the response
+            res.json({ image: imageData });
+        });
+
+        // Handle errors during stream processing
+        imageStream.on('error', (err) => {
+            console.error('Error processing image stream:', err);
+            res.status(500).json({ error: 'Internal server error' });
+        });
+    
+        
+    });
 
 
-get_binary(parseInt(req.params.id), (err, imageData) => {
-    if (err) {
-        console.error('An error occurred:', err.message);
-        res.status(404)
-        res.send("Failed")
-    } else {
-        // Here imageData is a Buffer containing the binary data of the image
-        // You can now work with this Buffer, save it to a file, send it over HTTP, etc.
-        console.log('Binary data of image received:', imageData);
-        res.status(200).send(imageData)
-    }
-});
 
 })
 app.get('/api/appeals/:id', (req, res) => {
