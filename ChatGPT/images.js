@@ -1,5 +1,7 @@
 const https = require('https');
 const zlib = require('zlib');
+const fs = require('fs');
+const path = require('path');
 const { Readable } = require('stream');
 
 function getOptions(assetId) {
