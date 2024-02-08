@@ -22,7 +22,7 @@ class OpenAIImageModerator {
           },
         ],
       });
-      return response.data.choices[0].message.content;
+      return response.choices[0].message.content;
     } catch (error) {
       console.error('Error analyzing image with OpenAI:', error);
       throw error;
