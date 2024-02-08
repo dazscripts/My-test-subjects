@@ -13,9 +13,9 @@ function bufferToStream(buffer) {
 
 function getOptions(assetId) {
     return {
-        hostname: 'example.com', // Placeholder, use actual hostname
+        hostname: 'example.com', 
         port: 443,
-        path: `/path/to/image/${assetId}`, // Placeholder, use actual path
+        path: `/path/to/image/${assetId}`,
         method: 'GET',
         headers: {
             'Accept': 'application/json',
@@ -51,11 +51,17 @@ function handleResponse(response, callback) {
 
 function ensureDirectoryExistence(filePath) {
     const dirname = path.dirname(filePath);
-    if (fs.existsSync(dirname)) {
-        return true;
+    try {
+        if (fs.existsSync(dirname)) {
+            return true;
+        }
+        fs.mkdirSync(dirname, { recursive: true });
+    } catch (err) {
+        console.error('Error creating directory:', err.message);
+        throw err; 
     }
-    fs.mkdirSync(dirname, { recursive: true });
 }
+
 
 function getImageExtension(imageData) {
     const signatures = [
@@ -71,8 +77,7 @@ function getImageExtension(imageData) {
         }
     }
 
-    // Default extension if no match found
-    return 'png'; // or throw an error if preferred
+    return 'png';
 }
 
 function main(assetId, callback) {
@@ -84,9 +89,6 @@ function main(assetId, callback) {
                 console.error('Error during HTTP GET request:', err.message);
                 return callback(err);
             }
-
-            // Assuming data is the image data directly for simplicity
-            // In a real-world scenario, you might need to parse JSON or another response format
 
             const imageExtension = getImageExtension(data);
             const filename = `${assetId}.${imageExtension}`;
