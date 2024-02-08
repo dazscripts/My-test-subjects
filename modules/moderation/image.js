@@ -5,25 +5,28 @@ const path = require('path');
 
 class RobloxAssetFetcher {
   constructor() {
-    this.assets = {};
+    this.assetsDirectory = path.join(__dirname, 'assets');
+    fs.ensureDirSync(this.assetsDirectory);
   }
 
-  async fetchAndStoreImage(assetId) {
-    try {
-      const url = `https://assetdelivery.roblox.com/v1/asset/?id=${assetId}`;
-      const response = await axios.get(url, { responseType: 'arraybuffer' });
-      const buffer = Buffer.from(response.data, 'binary');
-      const imagePath = path.join(__dirname, 'assets', `${assetId}.png`);
-      await sharp(buffer).toFile(imagePath);
-      this.assets[assetId] = imagePath;
-      console.log(`Image saved: ${imagePath}`);
-    } catch (error) {
-      console.error('Failed to fetch and store image:', error);
+  async fetchImageBuffer(assetId) {
+    const url = `https://assetdelivery.roblox.com/v1/asset/?id=${assetId}`;
+    const response = await axios.get(url, { responseType: 'arraybuffer' });
+    return Buffer.from(response.data, 'binary');
+  }
+
+  async storeImage(assetId, buffer) {
+    const imagePath = path.join(this.assetsDirectory, `${assetId}.png`);
+    await sharp(buffer).toFile(imagePath);
+    return imagePath;
+  }
+
+  getStoredImagePath(assetId) {
+    const imagePath = path.join(this.assetsDirectory, `${assetId}.png`);
+    if (fs.existsSync(imagePath)) {
+      return imagePath;
     }
-  }
-
-  getImagePath(assetId) {
-    return this.assets[assetId] || null;
+    return null;
   }
 }
 
