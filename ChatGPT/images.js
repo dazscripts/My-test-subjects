@@ -3,11 +3,12 @@ const zlib = require('zlib');
 const fs = require('fs');
 const path = require('path');
 const { Readable } = require('stream');
+const imageType = require('image-type'); // Make sure to install this package
 
 function bufferToStream(buffer) {
     const stream = new Readable();
     stream.push(buffer);
-    stream.push(null); 
+    stream.push(null);
     return stream;
 }
 
@@ -78,20 +79,25 @@ function main(assetId, callback) {
                             return callback(downloadErr);
                         }
                         
-                        const filename = `${assetId}.png`; 
+                        // Determine the image format from the downloaded data
+                        const imageFormat = imageType(imageData);
+                        if (!imageFormat) {
+                            console.error('Could not determine image format.');
+                            return callback(new Error('Could not determine image format.'));
+                        }
+                        
+                        const filename = `${assetId}.${imageFormat.ext}`; 
                         const filePath = path.join(__dirname, 'storage', filename);
 
-                        
                         ensureDirectoryExistence(filePath);
 
-                    
                         fs.writeFile(filePath, imageData, (writeErr) => {
                             if (writeErr) {
                                 console.error('Error writing image to file:', writeErr.message);
                                 return callback(writeErr);
                             }
                             
-                            console.log(`Image saved to ${filePath}`);
+                            console.log(`Image saved as ${filename} to ${filePath}`);
                             callback(null, filePath); 
                         });
                     });

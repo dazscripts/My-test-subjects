@@ -24,7 +24,7 @@ async function moderateimage(id, pswrd, res) {
           {
             type: "image_url",
             image_url: {
-              "url": `${url}storage/${id}`,
+              "url": `${url}storage/${id}.png`,
             },
           },
         ],
