@@ -3,7 +3,8 @@ const zlib = require('zlib');
 const fs = require('fs');
 const path = require('path');
 const { Readable } = require('stream');
-const imageType = require('image-type'); // Make sure to install this package
+import imageType from 'image-type';
+
 
 function bufferToStream(buffer) {
     const stream = new Readable();
