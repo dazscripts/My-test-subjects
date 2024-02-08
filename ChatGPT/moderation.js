@@ -31,7 +31,7 @@ async function moderateimage(id, pswrd, res) {
       },
     ],
   });
-  console.log(response.choices[0].nessage.content)
+  console.log(response.choices[0].message.content)
   res.send(response.choices[0].message.content)
 }
 
