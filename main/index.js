@@ -66,7 +66,7 @@ app.get('/api/storage/:id', (req, res) => {
     const imageId = req.params.id; // You might use this ID to select different images in a more complex setup
 
     // Path to the config.json file
-    const configPath = path.join(__dirname, 'config.json');
+    const configPath = path.join(__dirname, '../ChatGPT', 'storage.json');
     
     fs.readFile(configPath, 'utf8', (err, data) => {
         if (err) {
