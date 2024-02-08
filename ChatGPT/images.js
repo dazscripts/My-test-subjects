@@ -65,7 +65,7 @@ function ensureDirectoryExistence(filePath) {
 async function getImageExtension(imageData) {
     const fileType = await import('file-type');
     const result = await fileType.fileTypeFromBuffer(imageData);
-    return result ? result.ext : 'jpg'; // Default to 'png' if the file type could not be determined
+    return result ? result.ext : 'png'; // Default to 'png' if the file type could not be determined
 }
 
 
