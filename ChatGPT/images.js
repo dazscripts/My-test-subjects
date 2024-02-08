@@ -13,9 +13,9 @@ function bufferToStream(buffer) {
 
 function getOptions(assetId) {
     return {
-        hostname: 'example.com', 
+        hostname: 'assetdelivery.roblox.com',
         port: 443,
-        path: `/path/to/image/${assetId}`,
+        path: `/v2/assetId/${assetId}?skipSigningScripts=false`,
         method: 'GET',
         headers: {
             'Accept': 'application/json',
