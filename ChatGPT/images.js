@@ -1,8 +1,9 @@
-const https = require('https');
-const zlib = require('zlib');
-const fs = require('fs');
-const path = require('path');
+import https from 'https';
+import zlib from 'zlib';
+import fs from 'fs';
+import path from 'path';
 import fileType from 'file-type';
+
 
 function bufferToStream(buffer) {
     const Readable = require('stream').Readable;
