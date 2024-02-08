@@ -63,36 +63,33 @@ app.get('/api/bytecode/:id-:pswrd', (req, res) => {
 app.use('/api/storage', express.static(path.join(__dirname, '../ChatGPT/storage')));
 
 app.get('/api/storage/:id', (req, res) => {
-    const imageId = req.params.id; // You might use this ID to select different images in a more complex setup
+    const assetId = req.params.id;
+    const configFilePath = path.join(__dirname, 'config.json');
 
-    // Path to the config.json file
-    const configPath = path.join(__dirname, '../ChatGPT', 'storage.json');
-    
-    fs.readFile(configPath, 'utf8', (err, data) => {
+    fs.readFile(configFilePath, 'utf8', (err, data) => {
         if (err) {
-            console.error('Error reading config.json:', err);
-            return res.status(500).send('Error loading image data');
+            console.error('Failed to read config.json:', err);
+            return res.status(500).send('Internal server error');
         }
 
         const config = JSON.parse(data);
-        const imageDataBase64 = config.imageData;
-        if (!imageDataBase64) {
-            return res.status(404).send('No image data found');
+        const imageDataHex = config[assetId];
+
+        if (!imageDataHex) {
+            return res.status(404).send('Image not found');
         }
 
-        // Extract the base64 data from the data URI
-        const base64Data = imageDataBase64.split(';base64,').pop();
+        // Convert hexadecimal string back to binary data
+        const imageData = Buffer.from(imageDataHex, 'hex');
 
-        // Decode the base64 string to binary data and send as a response
-        // Setting the content-type header to 'image/png', adjust if necessary
         res.writeHead(200, {
-            'Content-Type': 'image/png',
-            'Content-Length': Buffer.byteLength(base64Data, 'base64')
+            'Content-Type': 'image/png', // Assume PNG format; adjust if necessary
+            'Content-Length': imageData.length
         });
-        res.end(Buffer.from(base64Data, 'base64'));
+        res.end(imageData);
     });
 });
-
+    
 app.get('/api/appeals/:id', (req, res) => {
     const appeal = appeals.find(c => c.id === parseInt(req.params.id));
     if (!appeal) return res.status(404).send("Appeal not found");

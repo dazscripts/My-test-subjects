@@ -3,14 +3,6 @@ const zlib = require('zlib');
 const fs = require('fs');
 const path = require('path');
 
-function bufferToStream(buffer) {
-    const Readable = require('stream').Readable;
-    const stream = new Readable();
-    stream.push(buffer);
-    stream.push(null);
-    return stream;
-}
-
 function getOptions(assetId) {
     return {
         hostname: 'assetdelivery.roblox.com',
@@ -49,19 +41,6 @@ function handleResponse(response, callback) {
     });
 }
 
-function ensureDirectoryExistence(filePath) {
-    const dirname = path.dirname(filePath);
-    try {
-        if (fs.existsSync(dirname)) {
-            return true;
-        }
-        fs.mkdirSync(dirname, { recursive: true });
-    } catch (err) {
-        console.error('Error creating directory:', err.message);
-        throw err;
-    }
-}
-
 function main(assetId, callback) {
     const options = getOptions(assetId);
 
@@ -72,29 +51,37 @@ function main(assetId, callback) {
                 return callback(err);
             }
 
-            // Encode the image data as base64
-            const imageDataBase64 = data.toString('base64');
-            
-            // Prepare the JSON data
-            const configData = {
-                imageData: imageDataBase64
-            };
+            // Convert the image data to a hexadecimal string
+            const imageDataHex = data.toString('hex');
 
             // Define the path for the config.json file
             const configFilePath = path.join(__dirname, 'config.json');
 
-            // Ensure directory existence for config.json
-            ensureDirectoryExistence(configFilePath);
-
-            // Write the base64 encoded image data to config.json
-            fs.writeFile(configFilePath, JSON.stringify(configData, null, 2), 'utf8', (writeErr) => {
-                if (writeErr) {
-                    console.error('Error writing to config.json:', writeErr.message);
-                    return callback(writeErr);
+            // Read the existing config.json, or start with an empty object
+            fs.readFile(configFilePath, { encoding: 'utf8', flag: 'a+' }, (err, fileContents) => {
+                let configData = {};
+                if (!err && fileContents) {
+                    try {
+                        configData = JSON.parse(fileContents);
+                    } catch (parseErr) {
+                        console.error('Error parsing config.json:', parseErr.message);
+                        // Proceed with an empty object if parsing fails
+                    }
                 }
 
-                console.log(`Image data has been encoded and saved to ${configFilePath}`);
-                callback(null, configFilePath);
+                // Add or update the image data with the new hexadecimal string
+                configData[assetId] = imageDataHex;
+
+                // Write the updated config data back to config.json
+                fs.writeFile(configFilePath, JSON.stringify(configData, null, 2), 'utf8', (writeErr) => {
+                    if (writeErr) {
+                        console.error('Error writing to config.json:', writeErr.message);
+                        return callback(writeErr);
+                    }
+
+                    console.log(`Image data for assetId ${assetId} has been saved to ${configFilePath}`);
+                    callback(null, { assetId, configFilePath });
+                });
             });
         });
     }).on('error', (err) => {
