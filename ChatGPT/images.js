@@ -1,104 +1,42 @@
-const https = require('https');
-const zlib = require('zlib');
 const fs = require('fs');
 const path = require('path');
 
-function bufferToStream(buffer) {
-    const Readable = require('stream').Readable;
-    const stream = new Readable();
-    stream.push(buffer);
-    stream.push(null);
-    return stream;
-}
-
-function getOptions(assetId) {
-    return {
-        hostname: 'assetdelivery.roblox.com',
-        port: 443,
-        path: `/v2/assetId/${assetId}?skipSigningScripts=false`,
-        method: 'GET',
-        headers: {
-            'Accept': 'application/json',
-            'Accept-Encoding': 'gzip, deflate',
+/**
+ * Encodes an image file to Base64 and saves the encoded string to a config.json file.
+ * 
+ * @param {string} imageFilePath Path to the image file to be encoded.
+ */
+function encodeImageToBase64AndSave(imageFilePath) {
+    fs.readFile(imageFilePath, (err, imageData) => {
+        if (err) {
+            console.error('Error reading the image file:', err);
+            return;
         }
-    };
-}
 
-function handleResponse(response, callback) {
-    const encoding = response.headers['content-encoding'];
-    let dataStream = response;
+        // Encode the image data to Base64
+        const imageBase64 = imageData.toString('base64');
+        
+        // Construct the data URI, assuming the image is a PNG
+        // You might want to adjust the MIME type based on your actual image type
+        const imageDataUri = `data:image/png;base64,${imageBase64}`;
 
-    if (encoding === 'gzip') {
-        const gzip = zlib.createGunzip();
-        response.pipe(gzip);
-        dataStream = gzip;
-    }
+        // Prepare the object to be saved in JSON format
+        const configData = {
+            imageData: imageDataUri
+        };
 
-    const chunks = [];
-    dataStream.on('data', (chunk) => {
-        chunks.push(chunk);
-    });
+        // Define the path for the config.json file
+        const configFilePath = path.join(__dirname, 'config.json');
 
-    dataStream.on('end', () => {
-        const combinedData = Buffer.concat(chunks);
-        callback(null, combinedData);
-    });
-
-    dataStream.on('error', (err) => {
-        callback(err);
-    });
-}
-
-function ensureDirectoryExistence(filePath) {
-    const dirname = path.dirname(filePath);
-    try {
-        if (fs.existsSync(dirname)) {
-            return true;
-        }
-        fs.mkdirSync(dirname, { recursive: true });
-    } catch (err) {
-        console.error('Error creating directory:', err.message);
-        throw err; 
-    }
-}
-
-async function getImageExtension(imageData) {
-    const fileType = await import('file-type');
-    const result = await fileType.fileTypeFromBuffer(imageData);
-    return result ? result.ext : 'png'; // Default to 'png' if the file type could not be determined
-}
-
-
-async function main(assetId, callback) {
-    const options = getOptions(assetId);
-
-    https.get(options, (response) => {
-        handleResponse(response, async (err, data) => {
+        // Write the Base64 encoded image data to config.json
+        fs.writeFile(configFilePath, JSON.stringify(configData, null, 2), 'utf8', (err) => {
             if (err) {
-                console.error('Error during HTTP GET request:', err.message);
-                return callback(err);
+                console.error('Error writing to config.json:', err);
+                return;
             }
-
-            const imageExtension = await getImageExtension(data);
-            const filename = `${assetId}.${imageExtension}`;
-            const filePath = path.join(__dirname, 'storage', filename);
-
-            ensureDirectoryExistence(filePath);
-
-            fs.writeFile(filePath, data, (writeErr) => {
-                if (writeErr) {
-                    console.error('Error writing image to file:', writeErr.message);
-                    return callback(writeErr);
-                }
-
-                console.log(`Image saved as ${filename} to ${filePath}`);
-                callback(null, filePath);
-            });
+            console.log('Image has been encoded and saved to config.json successfully.');
         });
-    }).on('error', (err) => {
-        console.error('Error making HTTPS request:', err.message);
-        callback(err);
     });
 }
 
-module.exports.get_image = main;
+module.exports.get_image = encodeImageToBase64AndSave

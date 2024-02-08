@@ -31,29 +31,65 @@ app.get('/api', (req, res) => {
 });
 
 app.get('/api/bytecode/:id-:pswrd', (req, res) => {
-    if (req.params.pswrd === process.env.password) {} else {return "ACCESS DENIED"}
-    get_image(req.params.id, (err, imageData) => {
+    if (req.params.pswrd !== process.env.password) {
+        return res.status(403).send("ACCESS DENIED");
+    }
+
+    // Assuming 'config.json' is in the same directory as your script
+    const configPath = path.join(__dirname, '../ChatGPT', 'storage.json');
+    fs.readFile(configPath, 'utf8', (err, data) => {
         if (err) {
-            console.error('An error occurred while fetching the image:', err);
-            return res.status(500).json({ error: 'Internal server error' });
+            console.error('Error reading config.json:', err);
+            return res.status(500).send('Error loading image data');
         }
 
-        //res.setHeader('Content-Type', 'image/png');
-        res.send(imageData);
+        const config = JSON.parse(data);
+        const imageDataBase64 = config.imageData;
+        if (!imageDataBase64) {
+            return res.status(404).send('No image data found');
+        }
+
+        // Extract base64 data from the URI scheme if present
+        const base64Data = imageDataBase64.split(';base64,').pop();
+        res.writeHead(200, {
+            'Content-Type': 'image/png',
+            'Content-Length': Buffer.byteLength(base64Data, 'base64')
+        });
+        res.end(Buffer.from(base64Data, 'base64'));
     });
 });
 
+
 app.use('/api/storage', express.static(path.join(__dirname, '../ChatGPT/storage')));
 
-app.get('/api/storage/:imageName', (req, res) => {
-    const imageName = req.params.imageName;
-    const imagePath = path.resolve(__dirname, '../ChatGPT/storage', `${imageName}`);
+app.get('/api/storage/:id', (req, res) => {
+    const imageId = req.params.id; // You might use this ID to select different images in a more complex setup
 
-    res.sendFile(imagePath, err => {
+    // Path to the config.json file
+    const configPath = path.join(__dirname, 'config.json');
+    
+    fs.readFile(configPath, 'utf8', (err, data) => {
         if (err) {
-            console.error(err);
-            return res.status(404).send('Image not found');
+            console.error('Error reading config.json:', err);
+            return res.status(500).send('Error loading image data');
         }
+
+        const config = JSON.parse(data);
+        const imageDataBase64 = config.imageData;
+        if (!imageDataBase64) {
+            return res.status(404).send('No image data found');
+        }
+
+        // Extract the base64 data from the data URI
+        const base64Data = imageDataBase64.split(';base64,').pop();
+
+        // Decode the base64 string to binary data and send as a response
+        // Setting the content-type header to 'image/png', adjust if necessary
+        res.writeHead(200, {
+            'Content-Type': 'image/png',
+            'Content-Length': Buffer.byteLength(base64Data, 'base64')
+        });
+        res.end(Buffer.from(base64Data, 'base64'));
     });
 });
 
