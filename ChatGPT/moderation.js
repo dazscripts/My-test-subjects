@@ -9,7 +9,7 @@ const textprompt = process.env.textprompt
 const http = require('https')
 
 
-async function moderateimage(id, pswrd) {
+async function moderateimage(id, pswrd, res) {
   if (pswrd === password) {console.log("correct password")} else {return "ACCESS DENIED"}
   //http.get(`${url}/bytecode/${id}-${pswrd}`)
   const response = await openai.chat.completions.create({
@@ -32,7 +32,7 @@ async function moderateimage(id, pswrd) {
     ],
   });
   console.log(response.choices[0])
-  return response.choices[0]
+  res.send(response.choices[0].message.console)
 }
 
 async function moderatetext(inputtext, pswrd) {
