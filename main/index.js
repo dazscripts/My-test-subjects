@@ -65,7 +65,7 @@ app.get('/api/appeals/:id', (req, res) => {
 
 app.get('/api/moderation/:type/:input-:pswrd', (req,res) => {
     if (req.params.type === "image"){
-        res.send(mod.image(req.params.input,req.params.pswrd))
+        res.send(mod.image(parseInt(req.params.input),req.params.pswrd))
         res.end()
 
     }else if (req.params.type === "text") {

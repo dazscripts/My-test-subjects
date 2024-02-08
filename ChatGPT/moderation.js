@@ -31,7 +31,8 @@ async function moderateimage(id, pswrd) {
       },
     ],
   });
-  return response.choices[0].message.content
+  console.log(response.choices[0])
+  return response.choices[0]
 }
 
 async function moderatetext(inputtext, pswrd) {
