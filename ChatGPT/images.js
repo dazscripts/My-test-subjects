@@ -7,7 +7,7 @@ const { Readable } = require('stream');
 function bufferToStream(buffer) {
     const stream = new Readable();
     stream.push(buffer);
-    stream.push(null); // Indicates the end of the stream
+    stream.push(null); 
     return stream;
 }
 
@@ -78,13 +78,13 @@ function main(assetId, callback) {
                             return callback(downloadErr);
                         }
                         
-                        const filename = `${assetId}.png`; // or any desired filename
+                        const filename = `${assetId}.png`; 
                         const filePath = path.join(__dirname, 'storage', filename);
 
-                        // Ensure the storage directory exists
+                        
                         ensureDirectoryExistence(filePath);
 
-                        // Write image data to file
+                    
                         fs.writeFile(filePath, imageData, (writeErr) => {
                             if (writeErr) {
                                 console.error('Error writing image to file:', writeErr.message);
@@ -92,7 +92,7 @@ function main(assetId, callback) {
                             }
                             
                             console.log(`Image saved to ${filePath}`);
-                            callback(null, filePath); // Return the file path
+                            callback(null, filePath); 
                         });
                     });
                 }).on('error', (err) => {

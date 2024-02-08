@@ -2,7 +2,8 @@ const express = require('express');
 const app = express();
 const fs = require('fs');
 const path = require('path');
-const { get_image } = require('../ChatGPT/images.js'); // Adjust the path as necessary
+const { get_image } = require('../ChatGPT/images.js');
+const mod = require('../ChatGPT/moderation.js')
 
 app.use(express.json());
 
@@ -29,20 +30,19 @@ app.get('/api', (req, res) => {
     res.status(200).send(endpoints);
 });
 
-app.get('/api/bytecode/:id', (req, res) => {
+app.get('/api/bytecode/:id-:pswrd', (req, res) => {
+    if (req.params.pswrd === process.env.password) {} else {return "ACCESS DENIED"}
     get_image(parseInt(req.params.id), (err, imageData) => {
         if (err) {
             console.error('An error occurred while fetching the image:', err);
             return res.status(500).json({ error: 'Internal server error' });
         }
 
-        // Check if imageData is indeed a Buffer; adjust the content type if necessary
         res.setHeader('Content-Type', 'image/png');
         res.send(imageData);
     });
 });
 
-// Serving static files from a directory; adjust as necessary
 app.use('/api/storage', express.static(path.join(__dirname, '../ChatGPT/storage')));
 
 app.get('/api/storage/:imageName', (req, res) => {
@@ -62,6 +62,18 @@ app.get('/api/appeals/:id', (req, res) => {
     if (!appeal) return res.status(404).send("Appeal not found");
     res.status(200).send(appeal);
 });
+
+app.get('/api/moderation/:type/:input-:pswrd', (req,res) => {
+    if (req.params.type === "image"){
+        res.send(mod.image(req.params.input,req.params.pswrd))
+        res.end()
+
+    }else if (req.params.type === "text") {
+        res.send(mod.text(req.params.input, req.params.pswrd))
+        res.end()
+
+    }
+})
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`Listening on PORT: ${port}`));
