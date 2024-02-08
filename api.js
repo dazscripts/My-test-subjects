@@ -15,6 +15,7 @@ app.get('/fetchAndStoreImage/:assetId', async (req, res) => {
     await fetcher.fetchAndStoreImage(assetId);
     const imagePath = fetcher.getImagePath(assetId);
     res.json({ success: true, imagePath: `/assets/${assetId}.png` });
+    res.redirect(`/assets/${assetId}.png`);
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
