@@ -11,7 +11,7 @@ const http = require('https')
 
 async function moderateimage(id, pswrd) {
   if (pswrd === password) {console.log("correct password")} else {return "ACCESS DENIED"}
-  http.get(`${url}/bytecode/${id}-${pswrd}`)
+  //http.get(`${url}/bytecode/${id}-${pswrd}`)
   const response = await openai.chat.completions.create({
     model: "gpt-4-vision-preview",
     messages: [
