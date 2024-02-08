@@ -1,20 +1,20 @@
 const express = require('express');
 
 const modpath = './modules/moderation/'
-const RobloxAssetFetcher = require('./modules/moderation/image.js');
-const OpenAIImageModerator = require('./modules/moderation/interact.js');
+const RobloxAssetFetcher = require(modpath+'filemanager.js');
+const OpenAIImageModerator = require(modpath+'responses.js');
 
 var app = express();
 const port = process.env.PORT;
 
 const fetcher = new RobloxAssetFetcher();
-const apiKey = process.env.OPENAI_API_KEY; // Ensure you use your actual API key
+const apiKey = process.env.OPENAI_API_KEY;
 const openAIModerator = new OpenAIImageModerator(apiKey);
 
 app.use('/assets', express.static('assets'));
 
-// Endpoint to fetch and store an image from Roblox
-app.get('/saveImage/:assetId', async (req, res) => {
+
+app.get('/v1/filter/s/:assetId', async (req, res) => {
   const { assetId } = req.params;
   try {
     const buffer = await fetcher.fetchImageBuffer(assetId);
@@ -25,8 +25,8 @@ app.get('/saveImage/:assetId', async (req, res) => {
   }
 });
 
-// Endpoint to view a saved image
-app.get('/viewImage/:assetId', (req, res) => {
+
+app.get('/v1/filter/v/:assetId', (req, res) => {
   const { assetId } = req.params;
   const imagePath = fetcher.getStoredImagePath(assetId);
   if (imagePath) {
@@ -36,13 +36,13 @@ app.get('/viewImage/:assetId', (req, res) => {
   }
 });
 
-app.get('/analyzeImage/:assetId', async (req, res) => {
+app.get('/v1/filter/i/:assetId', async (req, res) => {
   const { assetId } = req.params;
   const imagePath = fetcher.getStoredImagePath(assetId);
   if (!imagePath) {
     return res.status(404).send('Image not found.');
   }
-  const imageUrl = `https://kuiba.onrender.com/viewImage/${assetId}`; // Adjust with your actual server URL
+  const imageUrl = `https://kuiba.onrender.com/v1/filter/v/${assetId}`; 
   try {
     const analysisResult = await openAIModerator.analyzeImage(imageUrl);
     res.json({ success: true, analysis: analysisResult });
@@ -51,13 +51,9 @@ app.get('/analyzeImage/:assetId', async (req, res) => {
   }
 });
 
-app.get('/analyzeText/:input', async (req, res) => {
+app.get('/v1/filter/t/:input', async (req, res) => {
   const { input } = req.params;
-  //const imagePath = fetcher.getStoredImagePath(assetId);
-  //if (!imagePath) {
-  //  return res.status(404).send('Image not found.');
- // }
-  //const imageUrl = `Your_Express_Server_URL/assets/${assetId}.png`; // Adjust with your actual server URL
+  
   try {
     const analysisResult = await openAIModerator.filterstring(input);
     res.json({ success: true, analysis: analysisResult });
