@@ -4,7 +4,7 @@ const modpath = './modules/moderation/'
 const RobloxAssetFetcher = require('./modules/moderation/image.js');
 const OpenAIImageModerator = require('./modules/moderation/interact.js');
 
-const app = express();
+var app = express();
 const port = process.env.PORT;
 
 const fetcher = new RobloxAssetFetcher();
@@ -45,6 +45,21 @@ app.get('/analyzeImage/:assetId', async (req, res) => {
   const imageUrl = `https://kuiba.onrender.com/viewImage/${assetId}`; // Adjust with your actual server URL
   try {
     const analysisResult = await openAIModerator.analyzeImage(imageUrl);
+    res.json({ success: true, analysis: analysisResult });
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
+app.get('/analyzeText/:input', async (req, res) => {
+  const { input } = req.params;
+  //const imagePath = fetcher.getStoredImagePath(assetId);
+  //if (!imagePath) {
+  //  return res.status(404).send('Image not found.');
+ // }
+  const imageUrl = `Your_Express_Server_URL/assets/${assetId}.png`; // Adjust with your actual server URL
+  try {
+    const analysisResult = await openAIModerator.filterstring(input);
     res.json({ success: true, analysis: analysisResult });
   } catch (error) {
     res.status(500).send(error.message);
