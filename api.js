@@ -1,4 +1,6 @@
 const express = require('express');
+
+const modpath = './modules/moderation/'
 const RobloxAssetFetcher = require('./modules/moderation/image.js');
 const OpenAIImageModerator = require('./modules/moderation/interact.js');
 
@@ -6,7 +8,7 @@ const app = express();
 const port = process.env.PORT;
 
 const fetcher = new RobloxAssetFetcher();
-const apiKey = 'process.env.aikey'; // Ensure you use your actual API key
+const apiKey = process.env.OPENAI_API_KEY; // Ensure you use your actual API key
 const openAIModerator = new OpenAIImageModerator(apiKey);
 
 app.use('/assets', express.static('assets'));
