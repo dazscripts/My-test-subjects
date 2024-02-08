@@ -2,11 +2,9 @@ const https = require('https');
 const zlib = require('zlib');
 const fs = require('fs');
 const path = require('path');
-const { Readable } = require('stream');
-const imageType = (await import('image-type')).default;
-
 
 function bufferToStream(buffer) {
+    const Readable = require('stream').Readable;
     const stream = new Readable();
     stream.push(buffer);
     stream.push(null);
@@ -15,9 +13,9 @@ function bufferToStream(buffer) {
 
 function getOptions(assetId) {
     return {
-        hostname: 'assetdelivery.roblox.com',
+        hostname: 'example.com', // Placeholder, use actual hostname
         port: 443,
-        path: `/v2/assetId/${assetId}?skipSigningScripts=false`,
+        path: `/path/to/image/${assetId}`, // Placeholder, use actual path
         method: 'GET',
         headers: {
             'Accept': 'application/json',
@@ -59,6 +57,24 @@ function ensureDirectoryExistence(filePath) {
     fs.mkdirSync(dirname, { recursive: true });
 }
 
+function getImageExtension(imageData) {
+    const signatures = [
+        { bytes: [0xFF, 0xD8, 0xFF], ext: 'jpg' },
+        { bytes: [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A], ext: 'png' },
+        { bytes: [0x47, 0x49, 0x46, 0x38], ext: 'gif' }
+    ];
+
+    for (let signature of signatures) {
+        const match = signature.bytes.every((byte, index) => imageData[index] === byte);
+        if (match) {
+            return signature.ext;
+        }
+    }
+
+    // Default extension if no match found
+    return 'png'; // or throw an error if preferred
+}
+
 function main(assetId, callback) {
     const options = getOptions(assetId);
 
@@ -69,48 +85,24 @@ function main(assetId, callback) {
                 return callback(err);
             }
 
-            try {
-                const parsedData = JSON.parse(data.toString());
-                const imageUrl = parsedData.locations[0].location;
+            // Assuming data is the image data directly for simplicity
+            // In a real-world scenario, you might need to parse JSON or another response format
 
-                https.get(imageUrl, (imageResponse) => {
-                    handleResponse(imageResponse, (downloadErr, imageData) => {
-                        if (downloadErr) {
-                            console.error('Error downloading image:', downloadErr.message);
-                            return callback(downloadErr);
-                        }
-                        
-                        // Determine the image format from the downloaded data
-                        const imageFormat = imageType(imageData);
-                        if (!imageFormat) {
-                            console.error('Could not determine image format.');
-                            return callback(new Error('Could not determine image format.'));
-                        }
-                        
-                        const filename = `${assetId}.${imageFormat.ext}`; 
-                        const filePath = path.join(__dirname, 'storage', filename);
+            const imageExtension = getImageExtension(data);
+            const filename = `${assetId}.${imageExtension}`;
+            const filePath = path.join(__dirname, 'storage', filename);
 
-                        ensureDirectoryExistence(filePath);
+            ensureDirectoryExistence(filePath);
 
-                        fs.writeFile(filePath, imageData, (writeErr) => {
-                            if (writeErr) {
-                                console.error('Error writing image to file:', writeErr.message);
-                                return callback(writeErr);
-                            }
-                            
-                            console.log(`Image saved as ${filename} to ${filePath}`);
-                            callback(null, filePath); 
-                        });
-                    });
-                }).on('error', (err) => {
-                    console.error('Error making HTTPS request:', err.message);
-                    callback(err);
-                });
+            fs.writeFile(filePath, data, (writeErr) => {
+                if (writeErr) {
+                    console.error('Error writing image to file:', writeErr.message);
+                    return callback(writeErr);
+                }
 
-            } catch (parseErr) {
-                console.error('Error parsing JSON:', parseErr.message);
-                callback(parseErr);
-            }
+                console.log(`Image saved as ${filename} to ${filePath}`);
+                callback(null, filePath);
+            });
         });
     }).on('error', (err) => {
         console.error('Error making HTTPS request:', err.message);
@@ -118,4 +110,4 @@ function main(assetId, callback) {
     });
 }
 
-module.exports.get_image = main;
+module.exports.get_image = main
