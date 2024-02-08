@@ -7,7 +7,7 @@ const url = "https://kuiba.onrender.com/api/"
 const imgprompt = process.env.imageprompt
 const textprompt = process.env.textprompt
 const http = require('https')
-
+// b
 
 async function moderateimage(id, pswrd, res) {
   if (pswrd === password) {console.log("correct password")} else {res.send("ACCESS DENIED")}
