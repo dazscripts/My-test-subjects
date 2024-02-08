@@ -3,7 +3,7 @@ const zlib = require('zlib');
 const fs = require('fs');
 const path = require('path');
 const { Readable } = require('stream');
-import imageType from 'image-type';
+const imageType = (await import('image-type')).default;
 
 
 function bufferToStream(buffer) {
