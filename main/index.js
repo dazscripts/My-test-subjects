@@ -32,7 +32,7 @@ app.get('/api', (req, res) => {
 
 app.get('/api/bytecode/:id-:pswrd', (req, res) => {
     if (req.params.pswrd === process.env.password) {} else {return "ACCESS DENIED"}
-    get_image(parseInt(req.params.id), (err, imageData) => {
+    get_image(req.params.id, (err, imageData) => {
         if (err) {
             console.error('An error occurred while fetching the image:', err);
             return res.status(500).json({ error: 'Internal server error' });
