@@ -42,7 +42,7 @@ app.get('/analyzeImage/:assetId', async (req, res) => {
   if (!imagePath) {
     return res.status(404).send('Image not found.');
   }
-  const imageUrl = `Your_Express_Server_URL/assets/${assetId}.png`; // Adjust with your actual server URL
+  const imageUrl = `https://kuiba.onrender.com/viewImage/${assetId}`; // Adjust with your actual server URL
   try {
     const analysisResult = await openAIModerator.analyzeImage(imageUrl);
     res.json({ success: true, analysis: analysisResult });
