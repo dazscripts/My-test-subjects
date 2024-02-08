@@ -2,7 +2,7 @@ const OpenAI = require("openai")
 
 class OpenAIImageModerator {
   constructor(apiKey) {
-    this.openai = new OpenAI({ apiKey });
+    this.openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
   }
 
   async analyzeImage(imageUrl) {
