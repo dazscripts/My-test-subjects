@@ -2,6 +2,7 @@ const https = require('https');
 const zlib = require('zlib');
 const fs = require('fs');
 const path = require('path');
+const fileType = require('file-type');
 
 function bufferToStream(buffer) {
     const Readable = require('stream').Readable;
@@ -62,35 +63,22 @@ function ensureDirectoryExistence(filePath) {
     }
 }
 
-
-function getImageExtension(imageData) {
-    const signatures = [
-        { bytes: [0xFF, 0xD8, 0xFF], ext: 'jpg' },
-        { bytes: [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A], ext: 'png' },
-        { bytes: [0x47, 0x49, 0x46, 0x38], ext: 'gif' }
-    ];
-
-    for (let signature of signatures) {
-        const match = signature.bytes.every((byte, index) => imageData[index] === byte);
-        if (match) {
-            return signature.ext;
-        }
-    }
-
-    return 'png';
+async function getImageExtension(imageData) {
+    const result = await fileType.fromBuffer(imageData);
+    return result ? result.ext : 'png'; // Default to 'png' if the file type could not be determined
 }
 
-function main(assetId, callback) {
+async function main(assetId, callback) {
     const options = getOptions(assetId);
 
     https.get(options, (response) => {
-        handleResponse(response, (err, data) => {
+        handleResponse(response, async (err, data) => {
             if (err) {
                 console.error('Error during HTTP GET request:', err.message);
                 return callback(err);
             }
 
-            const imageExtension = getImageExtension(data);
+            const imageExtension = await getImageExtension(data);
             const filename = `${assetId}.${imageExtension}`;
             const filePath = path.join(__dirname, 'storage', filename);
 
@@ -101,7 +89,6 @@ function main(assetId, callback) {
                     console.error('Error writing image to file:', writeErr.message);
                     return callback(writeErr);
                 }
-                console.log(data)
 
                 console.log(`Image saved as ${filename} to ${filePath}`);
                 callback(null, filePath);
@@ -113,4 +100,4 @@ function main(assetId, callback) {
     });
 }
 
-module.exports.get_image = main
+module.exports.get_image = main;

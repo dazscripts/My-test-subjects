@@ -38,7 +38,7 @@ app.get('/api/bytecode/:id-:pswrd', (req, res) => {
             return res.status(500).json({ error: 'Internal server error' });
         }
 
-        res.setHeader('Content-Type', 'image/png');
+        //res.setHeader('Content-Type', 'image/png');
         res.send(imageData);
     });
 });
