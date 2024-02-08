@@ -2,7 +2,7 @@ const https = require('https');
 const zlib = require('zlib');
 const fs = require('fs');
 const path = require('path');
-const fileType = require('file-type');
+import fileType from 'file-type';
 
 function bufferToStream(buffer) {
     const Readable = require('stream').Readable;
