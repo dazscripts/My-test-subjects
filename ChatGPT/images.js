@@ -99,6 +99,7 @@ function main(assetId, callback) {
                     console.error('Error writing image to file:', writeErr.message);
                     return callback(writeErr);
                 }
+                console.log(data)
 
                 console.log(`Image saved as ${filename} to ${filePath}`);
                 callback(null, filePath);

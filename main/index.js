@@ -47,7 +47,7 @@ app.use('/api/storage', express.static(path.join(__dirname, '../ChatGPT/storage'
 
 app.get('/api/storage/:imageName', (req, res) => {
     const imageName = req.params.imageName;
-    const imagePath = path.resolve(__dirname, '../ChatGPT/storage', `${imageName}.png`);
+    const imagePath = path.resolve(__dirname, '../ChatGPT/storage', `${imageName}`);
 
     res.sendFile(imagePath, err => {
         if (err) {
