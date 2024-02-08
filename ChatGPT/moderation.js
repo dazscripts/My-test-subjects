@@ -6,7 +6,7 @@ const placeholder = "36214639"
 const url = "https://kuiba.onrender.com/api/"
 const imgprompt = process.env.imageprompt
 const textprompt = process.env.textprompt
-const http = require('http')
+const http = require('https')
 
 
 async function moderateimage(id, pswrd) {
