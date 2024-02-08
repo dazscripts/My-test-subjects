@@ -31,7 +31,7 @@ async function moderateimage(id, pswrd) {
       },
     ],
   });
-  return response.choices[0]
+  return response.choices[0].message.content
 }
 
 async function moderatetext(inputtext, pswrd) {
@@ -49,7 +49,7 @@ async function moderatetext(inputtext, pswrd) {
       },
     ],
   });
-  return response.choices[0]
+  return response.choices[0].message.content
 }
 
 module.exports.image = moderateimage
