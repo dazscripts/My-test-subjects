@@ -10,7 +10,7 @@ const http = require('https')
 
 
 async function moderateimage(id, pswrd, res) {
-  if (pswrd === password) {console.log("correct password")} else {return "ACCESS DENIED"}
+  if (pswrd === password) {console.log("correct password")} else {res.send("ACCESS DENIED")}
   //http.get(`${url}/bytecode/${id}-${pswrd}`)
   const response = await openai.chat.completions.create({
     model: "gpt-4-vision-preview",
@@ -32,11 +32,14 @@ async function moderateimage(id, pswrd, res) {
     ],
   });
   console.log(response.choices[0].message.content)
-  res.send(response.choices[0].message.content)
+  res.send({
+    input:`${url}storage/${id}`,
+    passed:response.choices[0].message.content
+  })
 }
 
-async function moderatetext(inputtext, pswrd) {
-  if (pswrd === password) {console.log("correct fassword")} else {return "ACCESS DENIED"}
+async function moderatetext(inputtext, pswrd, res) {
+  if (pswrd === password) {console.log("correct fassword")} else {res.send("ACCESS DENIED")}
   const response = await openai.chat.completions.create({
     model: "gpt-4-vision-preview",
     messages: [
@@ -50,7 +53,10 @@ async function moderatetext(inputtext, pswrd) {
       },
     ],
   });
-  return response.choices[0].message.content
+  res.send({
+    input:inputtext,
+    passed:response.choices[0].message.content
+  })
 }
 
 module.exports.image = moderateimage

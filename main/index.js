@@ -63,13 +63,13 @@ app.get('/api/appeals/:id', (req, res) => {
     res.status(200).send(appeal);
 });
 
-app.get('/api/moderation/:type-:input-:pswrd', (req,res) => {
+app.get('/api/moderation/:type/:input.:pswrd', (req,res) => {
     if (req.params.type === "image"){
         mod.image(parseInt(req.params.input),req.params.pswrd, res)
         
 
     }else if (req.params.type === "text") {
-        mod.text(req.params.input, req.params.pswrd)
+        mod.text(req.params.input, req.params.pswrd, res)
         
 
     }
