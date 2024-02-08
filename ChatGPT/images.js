@@ -1,9 +1,7 @@
-import https from 'https';
-import zlib from 'zlib';
-import fs from 'fs';
-import path from 'path';
-import fileType from 'file-type';
-
+const https = require('https');
+const zlib = require('zlib');
+const fs = require('fs');
+const path = require('path');
 
 function bufferToStream(buffer) {
     const Readable = require('stream').Readable;
@@ -65,9 +63,11 @@ function ensureDirectoryExistence(filePath) {
 }
 
 async function getImageExtension(imageData) {
-    const result = await fileType.fromBuffer(imageData);
+    const fileType = await import('file-type');
+    const result = await fileType.fileTypeFromBuffer(imageData);
     return result ? result.ext : 'png'; // Default to 'png' if the file type could not be determined
 }
+
 
 async function main(assetId, callback) {
     const options = getOptions(assetId);
