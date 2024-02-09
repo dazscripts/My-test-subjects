@@ -26,8 +26,8 @@ app.get('/v1/filter/s/:assetId', async (req, res) => {
 });
 
 
-app.get('/v1/filter/v/:assetId', (req, res) => {
-  const { assetId } = req.params;
+app.get('/v1/filter/v/:assetId', async (req, res) => {
+  const assetId = await fetcher.fetchRbxDecal(req.params.assetId);
   const imagePath = fetcher.getStoredImagePath(assetId);
   if (imagePath) {
     res.sendFile(imagePath);
@@ -37,7 +37,7 @@ app.get('/v1/filter/v/:assetId', (req, res) => {
 });
 
 app.get('/v1/filter/i/:assetId', async (req, res) => {
-  const { assetId } = req.params;
+  const assetId = await fetcher.fetchRbxDecal(req.params.assetId);
   const imagePath = fetcher.getStoredImagePath(assetId);
   if (!imagePath) {
     return res.status(404).send('Image not found.');
