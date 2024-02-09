@@ -10,6 +10,7 @@ class RobloxAssetFetcher {
   }
 
   async fetchImageBuffer(assetId) {
+    
     const url = `https://assetdelivery.roblox.com/v1/asset/?id=${assetId}`;
     const response = await axios.get(url, { responseType: 'arraybuffer' });
     return Buffer.from(response.data, 'binary');
@@ -19,6 +20,19 @@ class RobloxAssetFetcher {
     const imagePath = path.join(this.assetsDirectory, `${assetId}.png`);
     await sharp(buffer).toFile(imagePath);
     return imagePath;
+  }
+
+  async fetchRbxDecal(id) {
+    try {
+      const response = await fetch(`https://rbxdecal.glitch.me/${id}`);
+      if (!response.ok) {
+        return id
+      }
+      const data = await response.text(); // or response.json() if the response is in JSON format
+      return data
+    } catch (error) {
+      console.log('Failed to fetch from rbxdecal.glitch.me:', error);
+    }
   }
 
   getStoredImagePath(assetId) {
