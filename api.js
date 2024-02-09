@@ -15,7 +15,7 @@ app.use('/assets', express.static('assets'));
 
 
 app.get('/v1/filter/s/:assetId', async (req, res) => {
-  const assetId = fetcher.fetchRbxDecal(req.params.assetId);
+  const assetId = await fetcher.fetchRbxDecal(req.params.assetId);
   try {
     const buffer = await fetcher.fetchImageBuffer(assetId);
     await fetcher.storeImage(assetId, buffer);

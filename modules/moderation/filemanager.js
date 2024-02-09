@@ -2,6 +2,7 @@ const axios = require('axios');
 const sharp = require('sharp');
 const fs = require('fs-extra');
 const path = require('path');
+const { error } = require('console');
 
 class RobloxAssetFetcher {
   constructor() {
@@ -26,12 +27,13 @@ class RobloxAssetFetcher {
     try {
       const response = await fetch(`https://rbxdecal.glitch.me/${id}`);
       if (!response.ok) {
-        return id
+        throw new Error(`Error: ${response.statusText}`);
       }
       const data = await response.text(); // or response.json() if the response is in JSON format
       return data
     } catch (error) {
       console.log('Failed to fetch from rbxdecal.glitch.me:', error);
+      return id
     }
   }
 
