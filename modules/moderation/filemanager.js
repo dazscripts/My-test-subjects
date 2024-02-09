@@ -27,7 +27,8 @@ class RobloxAssetFetcher {
     try {
       const response = await fetch(`https://rbxdecal.glitch.me/${id}`);
       if (!response.ok) {
-        throw new Error(`Error: ${response.statusText}`);
+        //throw new Error(`Error: ${response.statusText}`);
+        return id
       }
       const data = await response.text(); // or response.json() if the response is in JSON format
       return data
